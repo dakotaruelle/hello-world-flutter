@@ -1,10 +1,13 @@
 import 'dart:convert';
-
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => PokemonState(),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -59,16 +62,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late Future<List<Pokemon>> futurePokemons;
-  var selectedPokemon = <int, bool>{};
-
-  void toggleSelection(int dexNumber, bool isSelected) {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values.
-      selectedPokemon[dexNumber] = isSelected;
-    });
-  }
 
   @override
   void initState() {
@@ -137,13 +130,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                       );
                                     },
                                   ),
-                                  Switch(
-                                      value: selectedPokemon[item.dexNumber] ==
-                                          true,
-                                      onChanged: (bool? isSelected) {
-                                        toggleSelection(item.dexNumber,
-                                            isSelected ?? false);
-                                      }),
+                                  Consumer<PokemonState>(
+                                    builder: (context, pokemonState, child) {
+                                      return Switch(
+                                          value: pokemonState.selectedPokemon[
+                                                  item.dexNumber] ==
+                                              true,
+                                          onChanged: (bool? isSelected) {
+                                            pokemonState.toggleSelection(
+                                                item.dexNumber,
+                                                isSelected ?? false);
+                                          });
+                                    },
+                                  ),
                                   const SizedBox(width: 8),
                                 ],
                               ),
@@ -330,6 +329,19 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                                 'Base Experience: ${snapshot.data!.baseExperience.toString()}',
                                 style: const TextStyle(color: Colors.white),
                               ),
+                              Consumer<PokemonState>(
+                                builder: (context, pokemonState, child) {
+                                  return Switch(
+                                      value: pokemonState.selectedPokemon[
+                                              widget.dexNumber] ==
+                                          true,
+                                      onChanged: (bool? isSelected) {
+                                        pokemonState.toggleSelection(
+                                            widget.dexNumber,
+                                            isSelected ?? false);
+                                      });
+                                },
+                              ),
                               const SizedBox(
                                 height: 20,
                               ),
@@ -361,5 +373,14 @@ Future<PokemonDetail> fetchPokemon(int dexNumber) async {
     // If the server did not return a 200 OK response,
     // then throw an exception.
     throw Exception('Failed to get pokemon');
+  }
+}
+
+class PokemonState extends ChangeNotifier {
+  final selectedPokemon = <int, bool>{};
+
+  void toggleSelection(int dexNumber, bool isSelected) {
+    selectedPokemon[dexNumber] = isSelected;
+    notifyListeners();
   }
 }
