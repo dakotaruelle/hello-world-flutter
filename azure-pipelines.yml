@@ -16,7 +16,6 @@ steps:
     channel: 'stable'
     version: 'latest'
 - script: |
-    echo Hello
-    echo World
-- script: flutter doctor
+    flutter --disable-analytics
+    flutter build ipa
 
