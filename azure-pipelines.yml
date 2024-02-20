@@ -16,9 +16,6 @@ steps:
     channel: 'stable'
     version: 'latest'
 
-- script: 'sudo softwareupdate --install-rosetta --agree-to-license'
-  displayName: 'Accept License'
-
 - script: 'brew install openjdk@17'
   displayName: 'Install Java'
 
