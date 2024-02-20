@@ -17,5 +17,5 @@ steps:
     version: 'latest'
 - script: |
     flutter --disable-analytics
-    flutter build ipa
+    flutter build apk
 
